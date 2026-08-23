@@ -14,7 +14,12 @@ fun RecuperarClave(modifier: Modifier, volver: () -> Unit) {
     var correo by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
 
-    FormularioBase(modifier, "Recuperar Acceso", "Enviaremos un enlace a su correo") {
+    FormularioBase(
+        modifier = modifier,
+        titulo = "Recuperar",
+        subtitulo = "Enviaremos instrucciones",
+        onBack = volver
+    ) {
         OutlinedTextField(
             value = correo,
             onValueChange = { 
@@ -49,14 +54,7 @@ fun RecuperarClave(modifier: Modifier, volver: () -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text("Enviar Instrucciones")
-        }
-        
-        TextButton(
-            onClick = volver,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Volver al inicio de sesión")
+            Text("Enviar")
         }
     }
 }

@@ -6,6 +6,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -96,36 +99,64 @@ fun Login(modifier: Modifier, ingresar: () -> Unit, registrar: () -> Unit, recup
 }
 
 @Composable
-fun FormularioBase(modifier: Modifier, titulo: String, subtitulo: String, contenido: @Composable () -> Unit) {
+fun FormularioBase(
+    modifier: Modifier,
+    titulo: String,
+    subtitulo: String,
+    onBack: (() -> Unit)? = null,
+    contenido: @Composable () -> Unit
+) {
+    val scrollState = rememberScrollState()
+    
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF0F4F8)), // Fondo un poco más sutil
+            .background(Color(0xFFF0F4F8)),
         contentAlignment = Alignment.Center
     ) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                .padding(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
-            shape = RoundedCornerShape(16.dp)
+            shape = RoundedCornerShape(20.dp)
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier
+                    .padding(24.dp)
+                    .verticalScroll(scrollState), // Habilitamos el scroll para accesibilidad
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = titulo,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1A237E)
-                )
-                Text(
-                    text = subtitulo,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (onBack != null) {
+                        IconButton(onClick = onBack, modifier = Modifier.size(48.dp)) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Volver",
+                                modifier = Modifier.size(32.dp),
+                                tint = Color(0xFF1A237E)
+                            )
+                        }
+                        Spacer(Modifier.width(12.dp))
+                    }
+                    Column {
+                        Text(
+                            text = titulo,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1A237E)
+                        )
+                        Text(
+                            text = subtitulo,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
+                    }
+                }
                 
                 Spacer(Modifier.height(16.dp))
                 

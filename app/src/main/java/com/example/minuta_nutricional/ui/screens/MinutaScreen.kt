@@ -142,7 +142,7 @@ fun TarjetaDiaLibre() {
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
-                    text = "🌟 ¡Te lo mereces! Retomamos con energía el lunes.",
+                    text = "¡Mas que merecido! Retomamos con energía el siguiente día.",
                     modifier = Modifier.padding(12.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
