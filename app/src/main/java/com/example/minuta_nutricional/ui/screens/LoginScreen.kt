@@ -1,5 +1,7 @@
 package com.example.minuta_nutricional.ui.screens
 
+import android.media.AudioManager
+import android.media.ToneGenerator
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -76,8 +78,12 @@ fun Login(modifier: Modifier, ingresar: () -> Unit, registrar: () -> Unit, recup
                         mensajeError = "Formato de correo inválido"
                     }
                     else -> {
-                        val usuarioValido = usuariosPrueba.any { it.correo == correo && it.clave == clave }
-                        if (usuarioValido) {
+                        val usuarioEncontrado = usuariosPrueba.find { it.correo == correo && it.clave == clave }
+                        //Sonido Alerta
+                        if (usuarioEncontrado != null) {
+                            val tono= ToneGenerator(AudioManager.STREAM_NOTIFICATION, 120)
+                            tono.startTone(ToneGenerator.TONE_PROP_ACK, 300)
+
                             ingresar()
                         } else {
                             mensajeError = "Credenciales incorrectas"
