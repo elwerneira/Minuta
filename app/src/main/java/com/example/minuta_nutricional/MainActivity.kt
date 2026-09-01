@@ -7,6 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -28,6 +32,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AplicacionMinuta() {
     val navController = rememberNavController()
+    var nombreUsuario by rememberSaveable { mutableStateOf("") }
 
     Scaffold { padding ->
         NavHost(
@@ -38,7 +43,8 @@ fun AplicacionMinuta() {
             composable("login") {
                 Login(
                     modifier = Modifier,
-                    ingresar = {
+                    ingresar = { nombre ->
+                        nombreUsuario = nombre
                         navController.navigate("minuta") {
                             popUpTo("login") { inclusive = true }
                         }
@@ -48,13 +54,23 @@ fun AplicacionMinuta() {
                 )
             }
             composable("registro") {
-                Registro(Modifier) { navController.popBackStack() }
+                Registro(
+                    modifier = Modifier,
+                    volver = { navController.popBackStack() },
+                    registroExitoso = { nombre ->
+                        nombreUsuario = nombre
+                        navController.navigate("minuta") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    }
+                )
             }
             composable("recuperar") {
                 RecuperarClave(Modifier) { navController.popBackStack() }
             }
             composable("minuta") {
-                MinutaSemanal(Modifier) {
+                MinutaSemanal(Modifier, nombreUsuario) {
+                    nombreUsuario = ""
                     navController.navigate("login") {
                         popUpTo("minuta") { inclusive = true }
                     }

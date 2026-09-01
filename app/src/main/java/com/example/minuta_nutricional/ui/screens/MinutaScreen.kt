@@ -24,7 +24,7 @@ import com.example.minuta_nutricional.data.recetasSemanales
 import kotlinx.coroutines.delay
 
 @Composable
-fun MinutaSemanal(modifier: Modifier, salir: () -> Unit) {
+fun MinutaSemanal(modifier: Modifier, nombreUsuario: String, salir: () -> Unit) {
     // Cambia cuando el usuario selecciona un día.
     var diaSeleccionado: Int by remember { mutableStateOf(0) }
     // Muestra la confirmación de la selección.
@@ -52,7 +52,12 @@ fun MinutaSemanal(modifier: Modifier, salir: () -> Unit) {
             },
             title = { Text("Sesión iniciada correctamente") },
             text = {
-                Text("Ahora puedes revisar tu minuta semanal y seleccionar un día para ver su receta.")
+                val mensajeBienvenida = if (nombreUsuario.isBlank()) {
+                    "Ahora puedes revisar tu minuta semanal y seleccionar un día para ver su receta."
+                } else {
+                    "Bienvenido, $nombreUsuario. Ahora puedes revisar tu minuta semanal y seleccionar un día para ver su receta."
+                }
+                Text(mensajeBienvenida)
             },
             confirmButton = {
                 TextButton(onClick = { mostrarBienvenida = false }) {

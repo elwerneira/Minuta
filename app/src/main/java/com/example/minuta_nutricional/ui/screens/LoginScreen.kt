@@ -21,7 +21,12 @@ import com.example.minuta_nutricional.data.usuariosPrueba
 import com.example.minuta_nutricional.ui.components.MensajeVisual
 
 @Composable
-fun Login(modifier: Modifier, ingresar: () -> Unit, registrar: () -> Unit, recuperar: () -> Unit) {
+fun Login(
+    modifier: Modifier,
+    ingresar: (String) -> Unit,
+    registrar: () -> Unit,
+    recuperar: () -> Unit
+) {
     var correo by remember { mutableStateOf("") }
     var clave by remember { mutableStateOf("") }
     var mensajeError by remember { mutableStateOf("") }
@@ -76,7 +81,7 @@ fun Login(modifier: Modifier, ingresar: () -> Unit, registrar: () -> Unit, recup
                     else -> {
                         val usuarioEncontrado = usuariosPrueba.find { it.correo == correo && it.clave == clave }
                         if (usuarioEncontrado != null) {
-                            ingresar()
+                            ingresar(usuarioEncontrado.nombre)
                         } else {
                             mensajeError = "Credenciales incorrectas"
                         }

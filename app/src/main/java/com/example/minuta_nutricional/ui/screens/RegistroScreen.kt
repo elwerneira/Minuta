@@ -19,7 +19,11 @@ import com.example.minuta_nutricional.ui.components.MensajeVisual
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Registro(modifier: Modifier, volver: () -> Unit) {
+fun Registro(
+    modifier: Modifier,
+    volver: () -> Unit,
+    registroExitoso: (String) -> Unit
+) {
     // Cambiar cuando el usuario completa el formulario.
     var nombre: String by remember { mutableStateOf("") }
     var correo: String by remember { mutableStateOf("") }
@@ -151,7 +155,6 @@ fun Registro(modifier: Modifier, volver: () -> Unit) {
         Button(
             onClick = {
                 when {
-                    !esError && mensaje.isNotEmpty() -> volver()
                     nombre.isBlank() || correo.isBlank() || clave.isBlank() -> {
                         mensaje = "Completa nombre, correo y contraseña para continuar."
                         esError = true
@@ -165,23 +168,16 @@ fun Registro(modifier: Modifier, volver: () -> Unit) {
                         esError = true
                     }
                     else -> {
-                        usuariosPrueba.add(Usuario(correo, clave, nombre))
-                        mensaje = "Registro exitoso. Presiona el botón para volver al inicio de sesión."
-                        esError = false
+                        val nuevoUsuario = Usuario(correo, clave, nombre)
+                        usuariosPrueba.add(nuevoUsuario)
+                        registroExitoso(nuevoUsuario.nombre)
                     }
                 }
             },
             modifier = Modifier.fillMaxWidth().height(56.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text(
-                text = if (!esError && mensaje.isNotEmpty()) {
-                    "Volver al inicio de sesión"
-                } else {
-                    "Crear cuenta"
-                },
-                style = MaterialTheme.typography.titleMedium
-            )
+            Text("Crear cuenta", style = MaterialTheme.typography.titleMedium)
         }
         
         Spacer(Modifier.height(16.dp))
