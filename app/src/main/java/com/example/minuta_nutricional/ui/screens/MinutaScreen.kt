@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
@@ -23,11 +25,14 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun MinutaSemanal(modifier: Modifier, salir: () -> Unit) {
-    var diaSeleccionado by remember { mutableStateOf(0) }
-    var mensajeSeleccion by remember { mutableStateOf("") }
-    var mostrarMensajeSeleccion by remember { mutableStateOf(false) }
-    var versionMensaje by remember { mutableStateOf(0) }
-    var mostrarBienvenida by rememberSaveable { mutableStateOf(true) }
+    // Cambia cuando el usuario selecciona un día.
+    var diaSeleccionado: Int by remember { mutableStateOf(0) }
+    // Muestra la confirmación de la selección.
+    var mensajeSeleccion: String by remember { mutableStateOf("") }
+    // Booleano
+    var mostrarMensajeSeleccion: Boolean by remember { mutableStateOf(false) }
+    var versionMensaje: Int by remember { mutableStateOf(0) }
+    var mostrarBienvenida: Boolean by rememberSaveable { mutableStateOf(true) }
 
     LaunchedEffect(versionMensaje) {
         if (versionMensaje > 0) {
@@ -61,6 +66,7 @@ fun MinutaSemanal(modifier: Modifier, salir: () -> Unit) {
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         Text(
             text = "Minuta Semanal",
@@ -157,7 +163,7 @@ fun MinutaSemanal(modifier: Modifier, salir: () -> Unit) {
             TarjetaReceta(recetasSemanales[diaSeleccionado])
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(Modifier.height(24.dp))
 
         OutlinedButton(
             onClick = salir,

@@ -20,16 +20,18 @@ import com.example.minuta_nutricional.ui.components.MensajeVisual
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Registro(modifier: Modifier, volver: () -> Unit) {
-    var nombre by remember { mutableStateOf("") }
-    var correo by remember { mutableStateOf("") }
-    var clave by remember { mutableStateOf("") }
-    var objetivo by remember { mutableStateOf("Mantener peso") }
-    var acepta by remember { mutableStateOf(false) }
-    var expandido by remember { mutableStateOf(false) }
-    var tipoAlimentacion by remember { mutableStateOf("Sin preferencia") }
-    var mensaje by remember { mutableStateOf("") }
-    var esError by remember { mutableStateOf(false) }
-    val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[a-z]+$".toRegex()
+    // Cambiar cuando el usuario completa el formulario.
+    var nombre: String by remember { mutableStateOf("") }
+    var correo: String by remember { mutableStateOf("") }
+    var clave: String by remember { mutableStateOf("") }
+    var objetivo: String by remember { mutableStateOf("Mantener peso") }
+    var acepta: Boolean by remember { mutableStateOf(false) }
+    var expandido: Boolean by remember { mutableStateOf(false) }
+    var tipoAlimentacion: String by remember { mutableStateOf("Sin preferencia") }
+    var mensaje: String by remember { mutableStateOf("") }
+    var esError: Boolean by remember { mutableStateOf(false) }
+    // Revisa el formato del correo y no se modifica.
+    val emailRegex: Regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[a-z]+$".toRegex()
 
     FormularioBase(
         modifier = modifier,
