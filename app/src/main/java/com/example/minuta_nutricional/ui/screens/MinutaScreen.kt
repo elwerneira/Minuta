@@ -4,18 +4,58 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.minuta_nutricional.data.Receta
 import com.example.minuta_nutricional.data.recetasSemanales
+import kotlinx.coroutines.delay
 
 @Composable
 fun MinutaSemanal(modifier: Modifier, salir: () -> Unit) {
     var diaSeleccionado by remember { mutableStateOf(0) }
+    var mensajeSeleccion by remember { mutableStateOf("") }
+    var mostrarMensajeSeleccion by remember { mutableStateOf(false) }
+    var versionMensaje by remember { mutableStateOf(0) }
+    var mostrarBienvenida by rememberSaveable { mutableStateOf(true) }
+
+    LaunchedEffect(versionMensaje) {
+        if (versionMensaje > 0) {
+            delay(3_000)
+            mostrarMensajeSeleccion = false
+        }
+    }
+
+    if (mostrarBienvenida) {
+        AlertDialog(
+            onDismissRequest = { mostrarBienvenida = false },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = "Inicio de sesión correcto"
+                )
+            },
+            title = { Text("Sesión iniciada correctamente") },
+            text = {
+                Text("Ahora puedes revisar tu minuta semanal y seleccionar un día para ver su receta.")
+            },
+            confirmButton = {
+                TextButton(onClick = { mostrarBienvenida = false }) {
+                    Text("Continuar")
+                }
+            }
+        )
+    }
 
     Column(
         modifier = modifier
@@ -49,8 +89,21 @@ fun MinutaSemanal(modifier: Modifier, salir: () -> Unit) {
             items(recetasSemanales.size) { indice ->
                 val esSeleccionado = diaSeleccionado == indice
                 Button(
-                    onClick = { diaSeleccionado = indice },
-                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        diaSeleccionado = indice
+                        mensajeSeleccion = "${recetasSemanales[indice].dia} seleccionado. Receta actualizada."
+                        mostrarMensajeSeleccion = true
+                        versionMensaje++
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics {
+                            stateDescription = if (esSeleccionado) {
+                                "Día seleccionado"
+                            } else {
+                                "Día no seleccionado"
+                            }
+                        },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (esSeleccionado) Color(0xFF1A237E) else Color(0xFFE8EAF6),
@@ -64,8 +117,21 @@ fun MinutaSemanal(modifier: Modifier, salir: () -> Unit) {
             item {
                 val esDiaLibre = diaSeleccionado == 7
                 Button(
-                    onClick = { diaSeleccionado = 7 },
-                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        diaSeleccionado = 7
+                        mensajeSeleccion = "Día libre seleccionado. Recomendación actualizada."
+                        mostrarMensajeSeleccion = true
+                        versionMensaje++
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics {
+                            stateDescription = if (esDiaLibre) {
+                                "Día seleccionado"
+                            } else {
+                                "Día no seleccionado"
+                            }
+                        },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (esDiaLibre) Color(0xFFFF9800) else Color(0xFFFFF3E0),
@@ -78,7 +144,12 @@ fun MinutaSemanal(modifier: Modifier, salir: () -> Unit) {
             }
         }
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(16.dp))
+
+        if (mostrarMensajeSeleccion) {
+            MensajeSeleccionCompacto(mensaje = mensajeSeleccion)
+            Spacer(Modifier.height(12.dp))
+        }
 
         if (diaSeleccionado == 7) {
             TarjetaDiaLibre()
@@ -96,6 +167,35 @@ fun MinutaSemanal(modifier: Modifier, salir: () -> Unit) {
         ) {
 
             Text("Cerrar Sesión")
+        }
+    }
+}
+
+@Composable
+private fun MensajeSeleccionCompacto(mensaje: String) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { liveRegion = LiveRegionMode.Polite },
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        shape = RoundedCornerShape(12.dp),
+        tonalElevation = 1.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = "Selección confirmada"
+            )
+            Text(
+                text = mensaje,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }

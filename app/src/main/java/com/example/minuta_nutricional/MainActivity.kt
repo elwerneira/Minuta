@@ -7,11 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.minuta_nutricional.ui.screens.Login
 import com.example.minuta_nutricional.ui.screens.MinutaSemanal
 import com.example.minuta_nutricional.ui.screens.RecuperarClave
@@ -28,18 +27,39 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AplicacionMinuta() {
-    var pantalla by remember { mutableStateOf("login") }
+    val navController = rememberNavController()
+
     Scaffold { padding ->
-        when (pantalla) {
-            "login" -> Login(
-                modifier = Modifier.padding(padding),
-                ingresar = { pantalla = "minuta" },
-                registrar = { pantalla = "registro" },
-                recuperar = { pantalla = "recuperar" }
-            )
-            "registro" -> Registro(Modifier.padding(padding)) { pantalla = "login" }
-            "recuperar" -> RecuperarClave(Modifier.padding(padding)) { pantalla = "login" }
-            else -> MinutaSemanal(Modifier.padding(padding)) { pantalla = "login" }
+        NavHost(
+            navController = navController,
+            startDestination = "login",
+            modifier = Modifier.padding(padding)
+        ) {
+            composable("login") {
+                Login(
+                    modifier = Modifier,
+                    ingresar = {
+                        navController.navigate("minuta") {
+                            popUpTo("login") { inclusive = true }
+                        }
+                    },
+                    registrar = { navController.navigate("registro") },
+                    recuperar = { navController.navigate("recuperar") }
+                )
+            }
+            composable("registro") {
+                Registro(Modifier) { navController.popBackStack() }
+            }
+            composable("recuperar") {
+                RecuperarClave(Modifier) { navController.popBackStack() }
+            }
+            composable("minuta") {
+                MinutaSemanal(Modifier) {
+                    navController.navigate("login") {
+                        popUpTo("minuta") { inclusive = true }
+                    }
+                }
+            }
         }
     }
 }

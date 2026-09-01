@@ -1,7 +1,5 @@
 package com.example.minuta_nutricional.ui.screens
 
-import android.media.AudioManager
-import android.media.ToneGenerator
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.minuta_nutricional.data.usuariosPrueba
+import com.example.minuta_nutricional.ui.components.MensajeVisual
 
 @Composable
 fun Login(modifier: Modifier, ingresar: () -> Unit, registrar: () -> Unit, recuperar: () -> Unit) {
@@ -37,7 +36,8 @@ fun Login(modifier: Modifier, ingresar: () -> Unit, registrar: () -> Unit, recup
             label = { Text("Correo Electrónico") },
             leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            isError = mensajeError.isNotEmpty()
         )
         
         Spacer(Modifier.height(8.dp))
@@ -52,16 +52,12 @@ fun Login(modifier: Modifier, ingresar: () -> Unit, registrar: () -> Unit, recup
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            isError = mensajeError.isNotEmpty()
         )
 
         if (mensajeError.isNotEmpty()) {
-            Text(
-                text = mensajeError,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 4.dp)
-            )
+            MensajeVisual(mensaje = mensajeError, esError = true)
         }
 
         Spacer(Modifier.height(16.dp))
@@ -79,11 +75,7 @@ fun Login(modifier: Modifier, ingresar: () -> Unit, registrar: () -> Unit, recup
                     }
                     else -> {
                         val usuarioEncontrado = usuariosPrueba.find { it.correo == correo && it.clave == clave }
-                        //Sonido Alerta
                         if (usuarioEncontrado != null) {
-                            val tono= ToneGenerator(AudioManager.STREAM_NOTIFICATION, 120)
-                            tono.startTone(ToneGenerator.TONE_PROP_ACK, 300)
-
                             ingresar()
                         } else {
                             mensajeError = "Credenciales incorrectas"

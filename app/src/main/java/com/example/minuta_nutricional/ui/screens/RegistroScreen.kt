@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.minuta_nutricional.data.Usuario
 import com.example.minuta_nutricional.data.usuariosPrueba
+import com.example.minuta_nutricional.ui.components.MensajeVisual
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +27,9 @@ fun Registro(modifier: Modifier, volver: () -> Unit) {
     var acepta by remember { mutableStateOf(false) }
     var expandido by remember { mutableStateOf(false) }
     var tipoAlimentacion by remember { mutableStateOf("Sin preferencia") }
+    var mensaje by remember { mutableStateOf("") }
+    var esError by remember { mutableStateOf(false) }
+    val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[a-z]+$".toRegex()
 
     FormularioBase(
         modifier = modifier,
@@ -35,35 +39,51 @@ fun Registro(modifier: Modifier, volver: () -> Unit) {
     ) {
         OutlinedTextField(
             value = nombre,
-            onValueChange = { nombre = it },
+            onValueChange = {
+                nombre = it
+                mensaje = ""
+            },
             label = { Text("Nombre Completo") },
             leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            isError = mensaje.isNotEmpty() && esError
         )
         
         Spacer(Modifier.height(8.dp))
         
         OutlinedTextField(
             value = correo,
-            onValueChange = { correo = it },
+            onValueChange = {
+                correo = it
+                mensaje = ""
+            },
             label = { Text("Correo Electrónico") },
             leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            isError = mensaje.isNotEmpty() && esError
         )
         
         Spacer(Modifier.height(8.dp))
         
         OutlinedTextField(
             value = clave,
-            onValueChange = { clave = it },
+            onValueChange = {
+                clave = it
+                mensaje = ""
+            },
             label = { Text("Contraseña") },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            isError = mensaje.isNotEmpty() && esError
         )
+
+        if (mensaje.isNotEmpty()) {
+            MensajeVisual(mensaje = mensaje, esError = esError)
+        }
 
         Spacer(Modifier.height(8.dp))
 
@@ -128,15 +148,38 @@ fun Registro(modifier: Modifier, volver: () -> Unit) {
         
         Button(
             onClick = {
-                if (nombre.isNotBlank() && correo.isNotBlank() && clave.isNotBlank()) {
-                    usuariosPrueba.add(Usuario(correo, clave, nombre))
-                    volver()
+                when {
+                    !esError && mensaje.isNotEmpty() -> volver()
+                    nombre.isBlank() || correo.isBlank() || clave.isBlank() -> {
+                        mensaje = "Completa nombre, correo y contraseña para continuar."
+                        esError = true
+                    }
+                    !correo.matches(emailRegex) -> {
+                        mensaje = "Ingresa un correo electrónico válido."
+                        esError = true
+                    }
+                    !acepta -> {
+                        mensaje = "Debes aceptar las recomendaciones para crear tu cuenta."
+                        esError = true
+                    }
+                    else -> {
+                        usuariosPrueba.add(Usuario(correo, clave, nombre))
+                        mensaje = "Registro exitoso. Presiona el botón para volver al inicio de sesión."
+                        esError = false
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth().height(56.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Crear Cuenta", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = if (!esError && mensaje.isNotEmpty()) {
+                    "Volver al inicio de sesión"
+                } else {
+                    "Crear cuenta"
+                },
+                style = MaterialTheme.typography.titleMedium
+            )
         }
         
         Spacer(Modifier.height(16.dp))
