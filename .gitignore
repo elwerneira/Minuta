@@ -9,3 +9,7 @@
 .cxx
 local.properties
 .artifacts/
+
+# Documentos de trabajo local: no forman parte del código de la aplicación.
+BITACORA_PROYECTO.md
+BITACORA_PROYECTO.docx
