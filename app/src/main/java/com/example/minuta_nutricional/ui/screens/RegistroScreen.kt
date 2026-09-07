@@ -154,13 +154,22 @@ fun Registro(
         
         Button(
             onClick = {
+                val correoLimpio = correo.trim()
                 when {
-                    nombre.isBlank() || correo.isBlank() || clave.isBlank() -> {
+                    nombre.isBlank() || correoLimpio.isBlank() || clave.isBlank() -> {
                         mensaje = "Completa nombre, correo y contraseña para continuar."
                         esError = true
                     }
-                    !correo.matches(emailRegex) -> {
+                    !correoLimpio.matches(emailRegex) -> {
                         mensaje = "Ingresa un correo electrónico válido."
+                        esError = true
+                    }
+                    clave.length < 6 -> {
+                        mensaje = "La contraseña debe tener al menos 6 caracteres."
+                        esError = true
+                    }
+                    usuariosPrueba.any { it.correo.equals(correoLimpio, ignoreCase = true) } -> {
+                        mensaje = "Este correo ya está registrado."
                         esError = true
                     }
                     !acepta -> {
@@ -168,7 +177,7 @@ fun Registro(
                         esError = true
                     }
                     else -> {
-                        val nuevoUsuario = Usuario(correo, clave, nombre)
+                        val nuevoUsuario = Usuario(correoLimpio, clave, nombre.trim())
                         usuariosPrueba.add(nuevoUsuario)
                         registroExitoso(nuevoUsuario.nombre)
                     }

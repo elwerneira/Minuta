@@ -10,7 +10,12 @@ data class Receta(
     val proteinas: Int, // Número de proteínas.
     val carbohidratos: Int, // Número de carbohidratos.
     val recomendacion: String // Recomendación para el usuario.
-)
+) {
+    // Entrega un resumen simple de los nutrientes de la receta.
+    fun resumenNutricional(): String {
+        return "$calorias kcal | Proteínas: $proteinas g | Carbohidratos: $carbohidratos g"
+    }
+}
 
 // Recetas para los días.
 val recetasSemanales = arrayOf(
@@ -23,9 +28,5 @@ val recetasSemanales = arrayOf(
     Receta("Jueves", "Tortilla de verduras", "Huevos, espinaca, zanahoria, cebolla y tomate.",
         "Mezclar los ingredientes y cocinar en sartén antiadherente.", 410, 25, 28, "Aporta proteína y verduras en una preparación simple."),
     Receta("Viernes", "Pasta integral con atún", "Pasta integral, atún al agua, tomate y brócoli.",
-        "Cocer la pasta y mezclar con atún, tomate y brócoli.", 550, 32, 65, "Usa atún al agua y controla la porción de pasta."),
-    Receta("Sábado", "Asado saludable", "Carne magra (posta negra), zapallo italiano, pimentón y papas.",
-        "Cocinar la carne y vegetales a la parrilla o al horno.", 600, 40, 45, "Disfruta en familia, prefiere el agua sobre bebidas azucaradas."),
-    Receta("Domingo", "Crema de verduras casera", "Zapallo, zanahoria, espinaca, apio y un toque de crema ligera.",
-        "Cocer todas las verduras y licuar hasta obtener una crema suave.", 350, 10, 38, "Día ideal para una digestión ligera antes de empezar la semana.")
+        "Cocer la pasta y mezclar con atún, tomate y brócoli.", 550, 32, 65, "Usa atún al agua y controla la porción de pasta.")
 )

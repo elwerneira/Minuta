@@ -102,7 +102,7 @@ fun MinutaSemanal(modifier: Modifier, nombreUsuario: String, salir: () -> Unit) 
                 Button(
                     onClick = {
                         diaSeleccionado = indice
-                        mensajeSeleccion = "${recetasSemanales[indice].dia} seleccionado. Receta actualizada."
+                        mensajeSeleccion = mensajeSeleccionReceta(recetasSemanales[indice])
                         mostrarMensajeSeleccion = true
                         versionMensaje++
                     },
@@ -126,10 +126,10 @@ fun MinutaSemanal(modifier: Modifier, nombreUsuario: String, salir: () -> Unit) 
                 }
             }
             item {
-                val esDiaLibre = diaSeleccionado == 7
+                val esDiaLibre = diaSeleccionado == recetasSemanales.size
                 Button(
                     onClick = {
-                        diaSeleccionado = 7
+                        diaSeleccionado = recetasSemanales.size
                         mensajeSeleccion = "Día libre seleccionado. Recomendación actualizada."
                         mostrarMensajeSeleccion = true
                         versionMensaje++
@@ -162,10 +162,12 @@ fun MinutaSemanal(modifier: Modifier, nombreUsuario: String, salir: () -> Unit) 
             Spacer(Modifier.height(12.dp))
         }
 
-        if (diaSeleccionado == 7) {
+        if (diaSeleccionado == recetasSemanales.size) {
             TarjetaDiaLibre()
         } else {
-            TarjetaReceta(recetasSemanales[diaSeleccionado])
+            recetaSeleccionada(diaSeleccionado)?.let { receta ->
+                TarjetaReceta(receta)
+            }
         }
 
         Spacer(Modifier.height(24.dp))
@@ -180,6 +182,16 @@ fun MinutaSemanal(modifier: Modifier, nombreUsuario: String, salir: () -> Unit) 
             Text("Cerrar Sesión")
         }
     }
+}
+
+// Devuelve el texto que confirma la receta elegida.
+private fun mensajeSeleccionReceta(receta: Receta): String {
+    return "${receta.dia} seleccionado. Receta actualizada."
+}
+
+// Busca una receta según la posición seleccionada en la grilla.
+private fun recetaSeleccionada(indice: Int): Receta? {
+    return recetasSemanales.getOrNull(indice)
 }
 
 @Composable
@@ -314,6 +326,12 @@ fun TarjetaReceta(receta: Receta) {
                     ) 
                 },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+            )
+
+            Text(
+                text = receta.resumenNutricional(),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
             )
             
             Card(
