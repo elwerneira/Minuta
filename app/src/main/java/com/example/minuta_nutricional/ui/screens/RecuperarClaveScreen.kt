@@ -9,14 +9,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.minuta_nutricional.ui.components.MensajeVisual
+import com.example.minuta_nutricional.utils.esCorreoValido
 
 @Composable
 fun RecuperarClave(modifier: Modifier, volver: () -> Unit) {
     var correo by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
     var esError by remember { mutableStateOf(false) }
-    val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[a-z]+$".toRegex()
-
     FormularioBase(
         modifier = modifier,
         titulo = "Recuperar",
@@ -50,7 +49,7 @@ fun RecuperarClave(modifier: Modifier, volver: () -> Unit) {
                         mensaje = "Ingresa tu correo electrónico para continuar."
                         esError = true
                     }
-                    !correo.matches(emailRegex) -> {
+                    !correo.esCorreoValido() -> {
                         mensaje = "El formato del correo electrónico no es válido."
                         esError = true
                     }

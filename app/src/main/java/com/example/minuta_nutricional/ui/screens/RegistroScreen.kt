@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.example.minuta_nutricional.data.Usuario
 import com.example.minuta_nutricional.data.usuariosPrueba
 import com.example.minuta_nutricional.ui.components.MensajeVisual
+import com.example.minuta_nutricional.utils.esCorreoValido
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,9 +35,6 @@ fun Registro(
     var tipoAlimentacion: String by remember { mutableStateOf("Sin preferencia") }
     var mensaje: String by remember { mutableStateOf("") }
     var esError: Boolean by remember { mutableStateOf(false) }
-    // Revisa el formato del correo y no se modifica.
-    val emailRegex: Regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[a-z]+$".toRegex()
-
     FormularioBase(
         modifier = modifier,
         titulo = "Registro",
@@ -160,7 +158,7 @@ fun Registro(
                         mensaje = "Completa nombre, correo y contraseña para continuar."
                         esError = true
                     }
-                    !correoLimpio.matches(emailRegex) -> {
+                    !correoLimpio.esCorreoValido() -> {
                         mensaje = "Ingresa un correo electrónico válido."
                         esError = true
                     }

@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.minuta_nutricional.data.usuariosPrueba
 import com.example.minuta_nutricional.ui.components.MensajeVisual
+import com.example.minuta_nutricional.utils.esCorreoValido
 
 @Composable
 fun Login(
@@ -69,13 +70,11 @@ fun Login(
 
         Button(
             onClick = {
-                val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[a-z]+$".toRegex()
-                
                 when {
                     correo.isBlank() || clave.isBlank() -> {
                         mensajeError = "Todos los campos son obligatorios"
                     }
-                    !correo.matches(emailRegex) -> {
+                    !correo.esCorreoValido() -> {
                         mensajeError = "Formato de correo inválido"
                     }
                     else -> {
