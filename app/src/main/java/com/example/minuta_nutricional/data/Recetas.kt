@@ -1,19 +1,30 @@
 package com.example.minuta_nutricional.data
 
+// Define el comportamiento común de los elementos mostrados en la minuta.
+interface ElementoMinuta {
+    val nombre: String
+    fun resumen(): String
+}
+
 // Almacena información de la receta.
 data class Receta(
     val dia: String,
-    val nombre: String, // Nombre de la receta.
+    override val nombre: String, // Nombre de la receta.
     val ingredientes: String, // Ingredientes.
     val preparacion: String, // Pasos de preparación.
     val calorias: Int, // Número de calorías.
     val proteinas: Int, // Número de proteínas.
     val carbohidratos: Int, // Número de carbohidratos.
     val recomendacion: String // Recomendación para el usuario.
-) {
+) : ElementoMinuta {
     // Entrega un resumen simple de los nutrientes de la receta.
     fun resumenNutricional(): String {
         return "$calorias kcal | Proteínas: $proteinas g | Carbohidratos: $carbohidratos g"
+    }
+
+    // Implementa la interfaz reutilizando el resumen nutricional de la receta.
+    override fun resumen(): String {
+        return resumenNutricional()
     }
 }
 
@@ -30,3 +41,6 @@ val recetasSemanales = arrayOf(
     Receta("Viernes", "Pasta integral con atún", "Pasta integral, atún al agua, tomate y brócoli.",
         "Cocer la pasta y mezclar con atún, tomate y brócoli.", 550, 32, 65, "Usa atún al agua y controla la porción de pasta.")
 )
+
+// Permite buscar la receta correspondiente a cada día de manera clara y directa.
+val recetasPorDia: Map<String, Receta> = recetasSemanales.associateBy { receta -> receta.dia }

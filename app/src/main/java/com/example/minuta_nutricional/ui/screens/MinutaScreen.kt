@@ -20,13 +20,14 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.minuta_nutricional.data.Receta
+import com.example.minuta_nutricional.data.recetasPorDia
 import com.example.minuta_nutricional.data.recetasSemanales
 import kotlinx.coroutines.delay
 
 @Composable
 fun MinutaSemanal(modifier: Modifier, nombreUsuario: String, salir: () -> Unit) {
     // Cambia cuando el usuario selecciona un día.
-    var diaSeleccionado: Int by remember { mutableStateOf(0) }
+    var diaSeleccionado: String by remember { mutableStateOf(recetasSemanales.first().dia) }
     // Muestra la confirmación de la selección.
     var mensajeSeleccion: String by remember { mutableStateOf("") }
     // Booleano
@@ -93,16 +94,17 @@ fun MinutaSemanal(modifier: Modifier, nombreUsuario: String, salir: () -> Unit) 
             columns = GridCells.Fixed(2),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(220.dp),
+                .height(180.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ){
             items(recetasSemanales.size) { indice ->
-                val esSeleccionado = diaSeleccionado == indice
+                val receta = recetasSemanales[indice]
+                val esSeleccionado = diaSeleccionado == receta.dia
                 Button(
                     onClick = {
-                        diaSeleccionado = indice
-                        mensajeSeleccion = mensajeSeleccionReceta(recetasSemanales[indice])
+                        diaSeleccionado = receta.dia
+                        mensajeSeleccion = mensajeSeleccionReceta(receta)
                         mostrarMensajeSeleccion = true
                         versionMensaje++
                     },
@@ -122,14 +124,14 @@ fun MinutaSemanal(modifier: Modifier, nombreUsuario: String, salir: () -> Unit) 
                     ),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = if (esSeleccionado) 4.dp else 0.dp)
                 ) {
-                    Text(recetasSemanales[indice].dia)
+                    Text(receta.dia)
                 }
             }
             item {
-                val esDiaLibre = diaSeleccionado == recetasSemanales.size
+                val esDiaLibre = diaSeleccionado == "Día Libre"
                 Button(
                     onClick = {
-                        diaSeleccionado = recetasSemanales.size
+                        diaSeleccionado = "Día Libre"
                         mensajeSeleccion = "Día libre seleccionado. Recomendación actualizada."
                         mostrarMensajeSeleccion = true
                         versionMensaje++
@@ -162,10 +164,10 @@ fun MinutaSemanal(modifier: Modifier, nombreUsuario: String, salir: () -> Unit) 
             Spacer(Modifier.height(12.dp))
         }
 
-        if (diaSeleccionado == recetasSemanales.size) {
+        if (diaSeleccionado == "Día Libre") {
             TarjetaDiaLibre()
         } else {
-            recetaSeleccionada(diaSeleccionado)?.let { receta ->
+            recetasPorDia[diaSeleccionado]?.let { receta ->
                 TarjetaReceta(receta)
             }
         }
@@ -187,11 +189,6 @@ fun MinutaSemanal(modifier: Modifier, nombreUsuario: String, salir: () -> Unit) 
 // Devuelve el texto que confirma la receta elegida.
 private fun mensajeSeleccionReceta(receta: Receta): String {
     return "${receta.dia} seleccionado. Receta actualizada."
-}
-
-// Busca una receta según la posición seleccionada en la grilla.
-private fun recetaSeleccionada(indice: Int): Receta? {
-    return recetasSemanales.getOrNull(indice)
 }
 
 @Composable
@@ -329,7 +326,7 @@ fun TarjetaReceta(receta: Receta) {
             )
 
             Text(
-                text = receta.resumenNutricional(),
+                text = receta.resumen(),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
