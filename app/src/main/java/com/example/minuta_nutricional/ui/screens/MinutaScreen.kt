@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -313,23 +314,40 @@ fun TarjetaReceta(receta: Receta) {
             )
             Text(receta.preparacion, style = MaterialTheme.typography.bodyMedium)
             
-            ListItem(
-                headlineContent = { Text("Aporte Energético", fontWeight = FontWeight.Bold) },
-                trailingContent = { 
-                    Text(
-                        "${receta.calorias} kcal",
-                        color = Color(0xFF4CAF50),
-                        fontWeight = FontWeight.Bold
-                    ) 
-                },
-                colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+            Text(
+                text = "Información nutricional",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold
             )
 
-            Text(
-                text = receta.resumen(),
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
-            )
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        contentDescription = "Información nutricional: ${receta.resumen()}"
+                    },
+                color = Color(0xFFE8EAF6),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                ) {
+                    DatoNutricional("Calorías", "${receta.calorias} kcal", Modifier.weight(1f))
+                    VerticalDivider(
+                        modifier = Modifier.height(44.dp),
+                        color = Color.White
+                    )
+                    DatoNutricional("Proteínas", "${receta.proteinas} g", Modifier.weight(1f))
+                    VerticalDivider(
+                        modifier = Modifier.height(44.dp),
+                        color = Color.White
+                    )
+                    DatoNutricional("Carbohidratos", "${receta.carbohidratos} g", Modifier.weight(1f))
+                }
+            }
             
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF9C4)),
@@ -343,5 +361,27 @@ fun TarjetaReceta(receta: Receta) {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun DatoNutricional(etiqueta: String, valor: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            text = etiqueta,
+            style = MaterialTheme.typography.labelSmall,
+            color = Color(0xFF3F51B5),
+            fontWeight = FontWeight.Medium
+        )
+        Text(
+            text = valor,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF1A237E),
+            fontWeight = FontWeight.Bold
+        )
     }
 }
