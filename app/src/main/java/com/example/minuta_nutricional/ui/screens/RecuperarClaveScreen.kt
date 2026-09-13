@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.minuta_nutricional.data.usuariosPrueba
 import com.example.minuta_nutricional.ui.components.MensajeVisual
 import com.example.minuta_nutricional.utils.esCorreoValido
 
@@ -44,13 +45,20 @@ fun RecuperarClave(modifier: Modifier, volver: () -> Unit) {
 
         Button(
             onClick = {
+                val correoLimpio = correo.trim()
                 when {
-                    correo.isBlank() -> {
+                    correoLimpio.isBlank() -> {
                         mensaje = "Ingresa tu correo electrónico para continuar."
                         esError = true
                     }
-                    !correo.esCorreoValido() -> {
+                    !correoLimpio.esCorreoValido() -> {
                         mensaje = "El formato del correo electrónico no es válido."
+                        esError = true
+                    }
+                    !usuariosPrueba.any { usuario ->
+                        usuario.correo.equals(correoLimpio, ignoreCase = true)
+                    } -> {
+                        mensaje = "No existe una cuenta registrada con este correo."
                         esError = true
                     }
                     else -> {
