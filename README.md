@@ -12,7 +12,6 @@ Aplicación móvil desarrollada con Kotlin, Android Studio, Jetpack Compose y Ma
 
 ## Conceptos Kotlin aplicados
 
-|----------------------|-----------------------------------------------------------------------------------------|
 | Concepto             | Aplicación en el proyecto                                                               |
 |----------------------|-----------------------------------------------------------------------------------------|
 | `arrayOf`            | Almacena los cinco usuarios iniciales en `usuariosIniciales`.                           |
@@ -22,7 +21,6 @@ Aplicación móvil desarrollada con Kotlin, Android Studio, Jetpack Compose y Ma
 | Interfaz             | `ElementoMinuta` es implementada por la clase `Receta`.                                 |
 | Función de extensión | `String.esCorreoValido()` reutiliza la validación de correo.                            |
 | Funciones privadas   | Componentes de apoyo como `DatoNutricional` mantienen la pantalla organizada.           |
-|----------------------|-----------------------------------------------------------------------------------------|
 
 ## Ejecución
 
