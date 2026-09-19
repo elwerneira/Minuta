@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.example.minuta_nutricional.data.usuariosPrueba
 import com.example.minuta_nutricional.ui.components.MensajeVisual
 import com.example.minuta_nutricional.utils.esCorreoValido
+import com.example.minuta_nutricional.utils.validar
 
 @Composable
 fun RecuperarClave(modifier: Modifier, volver: () -> Unit) {
@@ -51,7 +52,7 @@ fun RecuperarClave(modifier: Modifier, volver: () -> Unit) {
                         mensaje = "Ingresa tu correo electrónico para continuar."
                         esError = true
                     }
-                    !correoLimpio.esCorreoValido() -> {
+                    !validar(correoLimpio) { it.esCorreoValido() } -> {
                         mensaje = "El formato del correo electrónico no es válido."
                         esError = true
                     }

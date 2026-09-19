@@ -17,6 +17,7 @@ import com.example.minuta_nutricional.data.Usuario
 import com.example.minuta_nutricional.data.usuariosPrueba
 import com.example.minuta_nutricional.ui.components.MensajeVisual
 import com.example.minuta_nutricional.utils.esCorreoValido
+import com.example.minuta_nutricional.utils.validar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -158,7 +159,7 @@ fun Registro(
                         mensaje = "Completa nombre, correo y contraseña para continuar."
                         esError = true
                     }
-                    !correoLimpio.esCorreoValido() -> {
+                    !validar(correoLimpio) { it.esCorreoValido() } -> {
                         mensaje = "Ingresa un correo electrónico válido."
                         esError = true
                     }
@@ -176,8 +177,13 @@ fun Registro(
                     }
                     else -> {
                         val nuevoUsuario = Usuario(correoLimpio, clave, nombre.trim())
-                        usuariosPrueba.add(nuevoUsuario)
-                        registroExitoso(nuevoUsuario.nombre)
+                        try {
+                            usuariosPrueba.add(nuevoUsuario)
+                            registroExitoso(nuevoUsuario.nombre)
+                        } catch (e: Exception) {
+                            mensaje = "No fue posible crear la cuenta. Intenta nuevamente."
+                            esError = true
+                        }
                     }
                 }
             },

@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.example.minuta_nutricional.data.usuariosPrueba
 import com.example.minuta_nutricional.ui.components.MensajeVisual
 import com.example.minuta_nutricional.utils.esCorreoValido
+import com.example.minuta_nutricional.utils.validar
 
 @Composable
 fun Login(
@@ -74,7 +75,7 @@ fun Login(
                     correo.isBlank() || clave.isBlank() -> {
                         mensajeError = "Todos los campos son obligatorios"
                     }
-                    !correo.esCorreoValido() -> {
+                    !validar(correo) { it.esCorreoValido() } -> {
                         mensajeError = "Formato de correo inválido"
                     }
                     else -> {
