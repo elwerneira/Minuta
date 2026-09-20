@@ -7,7 +7,9 @@ Aplicación móvil desarrollada con Kotlin, Android Studio, Jetpack Compose y Ma
 - Login con validación de correo, contraseña y credenciales.
 - Registro de usuarios en memoria con validación de correo duplicado y contraseña mínima.
 - Recuperación de contraseña simulada para correos registrados.
-- Minuta semanal con recetas, día libre y tabla de calorías, proteínas y carbohidratos.
+- Menú principal con acceso directo a la planificación semanal.
+- Minuta adaptativa con recetas, día libre y resumen nutricional.
+- Pantalla independiente de receta con ingredientes, preparación y nutrientes.
 - Mensajes visuales de confirmación y error para apoyar la accesibilidad.
 
 ## Conceptos Kotlin aplicados
@@ -30,6 +32,20 @@ Aplicación móvil desarrollada con Kotlin, Android Studio, Jetpack Compose y Ma
 | Función de orden superior | `validar(valor, regla)` en `utils/Validaciones.kt` recibe una lambda con la regla de validación. Se utiliza con `validar(correo) { it.esCorreoValido() }`. |
 | Lambdas | Se emplean en los callbacks de navegación y en operaciones de colección como `find`, `any`, `forEach` y `associateBy`. |
 | Manejo de excepciones | El registro de usuario usa `try/catch` al agregar el usuario temporal a `usuariosPrueba`, entregando un mensaje visual si ocurre un error inesperado. |
+
+## Evidencias Semana 6
+
+| Requisito | Implementación | Archivo principal |
+|-----------|----------------|------------------|
+| Pantallas modulares | Login, Registro, Recuperación, HomeMenu, Minuta y Receta se implementan como funciones `@Composable` conectadas con `NavHost`. | `MainActivity.kt` y `ui/screens` |
+| Equivalentes de Views y ViewGroups | `Text`, `Button`, `Image` y `OutlinedTextField` son componentes visuales; `Column`, `Row`, `FlowRow` y `Scaffold` organizan la interfaz. | `ui/screens` |
+| Diseño adaptativo | Los botones de los días cambian de una a dos columnas según el ancho disponible mediante `BoxWithConstraints` y `FlowRow`. | `MinutaScreen.kt` |
+| Widgets y eventos | Botones, campos, checkbox, radio buttons y selector responden mediante `onClick`, `onValueChange` y otros callbacks. | `ui/screens` |
+| Content Provider | `MinutaContentProvider` publica las recetas en `content://com.example.minuta_nutricional.recetas/recetas`; la app las consulta mediante `ContentResolver`. | `data/MinutaContentProvider.kt` y `data/RecetasProvider.kt` |
+| Palette | La pantalla de receta obtiene un color dominante desde su ilustración y lo aplica como color ambiental, manteniendo un color de respaldo. | `RecetaScreen.kt` |
+| Extensión KTX | `Drawable.toBitmap()` de Core KTX simplifica la conversión necesaria para analizar la ilustración con Palette. | `RecetaScreen.kt` |
+| Accesibilidad | Controles grandes, mensajes con regiones semánticas, descripciones de estado y navegación con textos directos. | `ui/screens` |
+| Repositorio Git | El proyecto se mantiene en `https://github.com/elwerneira/Minuta`. | Repositorio remoto `origin` |
 
 ## Ejecución
 

@@ -102,7 +102,12 @@ fun Registro(
                 readOnly = true,
                 label = { Text("Tipo de alimentación") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandido) },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
+                modifier = Modifier
+                    .menuAnchor(
+                        type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                        enabled = true
+                    )
+                    .fillMaxWidth()
             )
 
             ExposedDropdownMenu(
