@@ -1,5 +1,6 @@
 package com.example.minuta_nutricional.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -13,8 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.minuta_nutricional.data.Usuario
-import com.example.minuta_nutricional.data.usuariosPrueba
+import com.example.minuta_nutricional.data.FirebaseUsuarios
+import com.example.minuta_nutricional.data.PerfilUsuario
+import com.example.minuta_nutricional.data.mensajeFirebase
+import kotlinx.coroutines.launch
 import com.example.minuta_nutricional.ui.components.MensajeVisual
 import com.example.minuta_nutricional.utils.esCorreoValido
 import com.example.minuta_nutricional.utils.validar
@@ -36,11 +39,14 @@ fun Registro(
     var tipoAlimentacion: String by remember { mutableStateOf("Sin preferencia") }
     var mensaje: String by remember { mutableStateOf("") }
     var esError: Boolean by remember { mutableStateOf(false) }
+    var cargando by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    BackHandler(enabled = cargando) { /* Esperar a que termine la creación del perfil. */ }
     FormularioBase(
         modifier = modifier,
         titulo = "Registro",
         subtitulo = "Perfil nutricional",
-        onBack = volver
+        onBack = if (cargando) null else volver
     ) {
         OutlinedTextField(
             value = nombre,
@@ -168,12 +174,12 @@ fun Registro(
                         mensaje = "Ingresa un correo electrónico válido."
                         esError = true
                     }
-                    clave.length < 6 -> {
-                        mensaje = "La contraseña debe tener al menos 6 caracteres."
+                    nombre.trim().length > 120 -> {
+                        mensaje = "El nombre debe tener como máximo 120 caracteres."
                         esError = true
                     }
-                    usuariosPrueba.any { it.correo.equals(correoLimpio, ignoreCase = true) } -> {
-                        mensaje = "Este correo ya está registrado."
+                    clave.length < 6 -> {
+                        mensaje = "La contraseña debe tener al menos 6 caracteres."
                         esError = true
                     }
                     !acepta -> {
@@ -181,21 +187,33 @@ fun Registro(
                         esError = true
                     }
                     else -> {
-                        val nuevoUsuario = Usuario(correoLimpio, clave, nombre.trim())
-                        try {
-                            usuariosPrueba.add(nuevoUsuario)
-                            registroExitoso(nuevoUsuario.nombre)
-                        } catch (e: Exception) {
-                            mensaje = "No fue posible crear la cuenta. Intenta nuevamente."
-                            esError = true
+                        val perfil = PerfilUsuario(
+                            nombre = nombre.trim(),
+                            correo = correoLimpio,
+                            tipoAlimentacion = tipoAlimentacion,
+                            objetivo = objetivo,
+                            aceptaRecomendaciones = acepta
+                        )
+                        cargando = true
+                        scope.launch {
+                            val resultado = FirebaseUsuarios.registrar(correoLimpio, clave, perfil)
+                            cargando = false
+                            resultado.fold(
+                                onSuccess = { registroExitoso(it.nombre) },
+                                onFailure = {
+                                    mensaje = it.mensajeFirebase()
+                                    esError = true
+                                }
+                            )
                         }
                     }
                 }
             },
             modifier = Modifier.fillMaxWidth().height(56.dp),
+            enabled = !cargando,
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Crear cuenta", style = MaterialTheme.typography.titleMedium)
+            Text(if (cargando) "Creando cuenta…" else "Crear cuenta", style = MaterialTheme.typography.titleMedium)
         }
         
         Spacer(Modifier.height(16.dp))

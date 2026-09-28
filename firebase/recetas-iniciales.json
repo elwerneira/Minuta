@@ -1,0 +1,52 @@
+{
+  "lunes": {
+    "dia": "Lunes",
+    "nombre": "Pollo con arroz y ensalada",
+    "ingredientes": "Pechuga de pollo, arroz integral, lechuga y tomate.",
+    "preparacion": "Cocinar el pollo a la plancha y servir con arroz y ensalada.",
+    "calorias": 520,
+    "proteinas": 38,
+    "carbohidratos": 50,
+    "recomendacion": "Aporta proteínas y fibra. Prefiere poca sal."
+  },
+  "martes": {
+    "dia": "Martes",
+    "nombre": "Lentejas con verduras",
+    "ingredientes": "Lentejas, zanahoria, cebolla, zapallo y arroz.",
+    "preparacion": "Cocer las lentejas con las verduras picadas.",
+    "calorias": 480,
+    "proteinas": 23,
+    "carbohidratos": 68,
+    "recomendacion": "Buena fuente de hierro y proteína vegetal."
+  },
+  "miercoles": {
+    "dia": "Miércoles",
+    "nombre": "Pescado al horno con papas",
+    "ingredientes": "Filete de pescado, papas, limón y ensalada verde.",
+    "preparacion": "Hornear el pescado con limón y acompañar con papas cocidas.",
+    "calorias": 500,
+    "proteinas": 35,
+    "carbohidratos": 45,
+    "recomendacion": "Incluye omega-3. Evita freír el pescado."
+  },
+  "jueves": {
+    "dia": "Jueves",
+    "nombre": "Tortilla de verduras",
+    "ingredientes": "Huevos, espinaca, zanahoria, cebolla y tomate.",
+    "preparacion": "Mezclar los ingredientes y cocinar en sartén antiadherente.",
+    "calorias": 410,
+    "proteinas": 25,
+    "carbohidratos": 28,
+    "recomendacion": "Aporta proteína y verduras en una preparación simple."
+  },
+  "viernes": {
+    "dia": "Viernes",
+    "nombre": "Pasta integral con atún",
+    "ingredientes": "Pasta integral, atún al agua, tomate y brócoli.",
+    "preparacion": "Cocer la pasta y mezclar con atún, tomate y brócoli.",
+    "calorias": 550,
+    "proteinas": 32,
+    "carbohidratos": 65,
+    "recomendacion": "Usa atún al agua y controla la porción de pasta."
+  }
+}

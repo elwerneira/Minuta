@@ -1,0 +1,41 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "usuarios": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['nombre', 'correo', 'tipoAlimentacion', 'objetivo', 'aceptaRecomendaciones'])",
+        "nombre": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120" },
+        "correo": { ".validate": "newData.isString() && newData.val() === auth.token.email" },
+        "tipoAlimentacion": { ".validate": "newData.val() === 'Sin preferencia' || newData.val() === 'Vegetariana' || newData.val() === 'Vegana'" },
+        "objetivo": { ".validate": "newData.val() === 'Bajar de peso' || newData.val() === 'Mantener peso' || newData.val() === 'Aumentar masa muscular'" },
+        "aceptaRecomendaciones": { ".validate": "newData.isBoolean()" },
+        "$otro": { ".validate": false }
+      }
+    },
+    "administradores": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": false
+      }
+    },
+    "recetas": {
+      ".read": "auth != null",
+      "$dia": {
+        ".write": "auth != null && root.child('administradores').child(auth.uid).val() === true",
+        ".validate": "newData.hasChildren(['dia', 'nombre', 'ingredientes', 'preparacion', 'calorias', 'proteinas', 'carbohidratos', 'recomendacion'])",
+        "dia": { ".validate": "($dia === 'lunes' && newData.val() === 'Lunes') || ($dia === 'martes' && newData.val() === 'Martes') || ($dia === 'miercoles' && newData.val() === 'Miércoles') || ($dia === 'jueves' && newData.val() === 'Jueves') || ($dia === 'viernes' && newData.val() === 'Viernes') || ($dia === 'sabado' && newData.val() === 'Sábado') || ($dia === 'domingo' && newData.val() === 'Domingo')" },
+        "nombre": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120" },
+        "ingredientes": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 2000" },
+        "preparacion": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 4000" },
+        "recomendacion": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 500" },
+        "calorias": { ".validate": "newData.isNumber() && newData.val() % 1 === 0 && newData.val() >= 1 && newData.val() <= 10000" },
+        "proteinas": { ".validate": "newData.isNumber() && newData.val() % 1 === 0 && newData.val() >= 0 && newData.val() <= 1000" },
+        "carbohidratos": { ".validate": "newData.isNumber() && newData.val() % 1 === 0 && newData.val() >= 0 && newData.val() <= 1000" },
+        "$otro": { ".validate": false }
+      }
+    }
+  }
+}

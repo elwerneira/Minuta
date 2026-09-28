@@ -1,6 +1,7 @@
 package com.example.minuta_nutricional
 
 import android.os.Bundle
+import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,13 +18,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.minuta_nutricional.data.recetasSemanales
+import com.example.minuta_nutricional.ui.screens.CatalogoRecetas
+import com.example.minuta_nutricional.ui.screens.GestionRecetas
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.Column
+import com.example.minuta_nutricional.data.FirebaseUsuarios
 import com.example.minuta_nutricional.ui.screens.HomeMenu
 import com.example.minuta_nutricional.ui.screens.Login
 import com.example.minuta_nutricional.ui.screens.MinutaSemanal
 import com.example.minuta_nutricional.ui.screens.RecuperarClave
 import com.example.minuta_nutricional.ui.screens.RecetaDetalle
 import com.example.minuta_nutricional.ui.screens.Registro
+import com.example.minuta_nutricional.ui.screens.Perfil
 import com.example.minuta_nutricional.ui.theme.Minuta_NutricionalTheme
 
 class MainActivity : ComponentActivity() {
@@ -77,7 +84,10 @@ fun AplicacionMinuta() {
                 HomeMenu(
                     nombreUsuario = nombreUsuario,
                     verMinuta = { navController.navigate("minuta") },
+                    verPerfil = { navController.navigate("perfil") },
+                    gestionarRecetas = { navController.navigate("gestion-recetas") },
                     salir = {
+                        FirebaseUsuarios.cerrarSesion()
                         nombreUsuario = ""
                         navController.navigate("login") {
                             popUpTo("home") { inclusive = true }
@@ -85,23 +95,47 @@ fun AplicacionMinuta() {
                     }
                 )
             }
-            composable("minuta") {
-                MinutaSemanal(
+            composable("perfil") {
+                Perfil(
                     modifier = Modifier,
-                    abrirReceta = { indice -> navController.navigate("receta/$indice") },
-                    volver = { navController.popBackStack() }
+                    volver = { navController.popBackStack() },
+                    perfilActualizado = { nombreUsuario = it },
+                    cuentaEliminada = {
+                        nombreUsuario = ""
+                        navController.navigate("login") {
+                            popUpTo("home") { inclusive = true }
+                        }
+                    }
                 )
             }
-            composable(
-                route = "receta/{indice}",
-                arguments = listOf(navArgument("indice") { type = NavType.IntType })
-            ) { entrada ->
-                val indice = entrada.arguments?.getInt("indice") ?: 0
-                recetasSemanales.getOrNull(indice)?.let { receta ->
-                    RecetaDetalle(
-                        receta = receta,
+            composable("gestion-recetas") {
+                GestionRecetas(volver = { navController.popBackStack() })
+            }
+            composable("minuta") {
+                CatalogoRecetas(volver = { navController.popBackStack() }) { recetas ->
+                    MinutaSemanal(
+                        modifier = Modifier,
+                        recetas = recetas,
+                        abrirReceta = { dia -> navController.navigate("receta/${Uri.encode(dia)}") },
                         volver = { navController.popBackStack() }
                     )
+                }
+            }
+            composable(
+                route = "receta/{dia}",
+                arguments = listOf(navArgument("dia") { type = NavType.StringType })
+            ) { entrada ->
+                val dia = entrada.arguments?.getString("dia")
+                CatalogoRecetas(volver = { navController.popBackStack() }) { recetas ->
+                    val receta = recetas.find { it.dia == dia }
+                    if (receta != null) {
+                        RecetaDetalle(receta = receta, volver = { navController.popBackStack() })
+                    } else {
+                        Column {
+                            Text("La receta de este día ya no está disponible.")
+                            TextButton(onClick = { navController.popBackStack() }) { Text("Volver") }
+                        }
+                    }
                 }
             }
         }

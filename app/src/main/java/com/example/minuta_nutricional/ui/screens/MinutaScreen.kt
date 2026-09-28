@@ -38,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
@@ -47,26 +46,17 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.minuta_nutricional.data.Receta
-import com.example.minuta_nutricional.data.consultarRecetas
-import com.example.minuta_nutricional.data.recetasSemanales
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MinutaSemanal(
     modifier: Modifier = Modifier,
-    abrirReceta: (Int) -> Unit,
+    recetas: List<Receta>,
+    abrirReceta: (String) -> Unit,
     volver: () -> Unit
 ) {
-    val context = LocalContext.current
-    val recetas = remember {
-        try {
-            context.consultarRecetas().ifEmpty { recetasSemanales.toList() }
-        } catch (_: Exception) {
-            recetasSemanales.toList()
-        }
-    }
-    var diaSeleccionado by remember { mutableStateOf(recetas.first().dia) }
+    var diaSeleccionado by remember { mutableStateOf(recetas.firstOrNull()?.dia ?: DIA_LIBRE) }
     var mensajeSeleccion by remember { mutableStateOf("") }
     var mostrarMensajeSeleccion by remember { mutableStateOf(false) }
     var versionMensaje by remember { mutableStateOf(0) }
@@ -183,8 +173,7 @@ fun MinutaSemanal(
                 TarjetaResumenReceta(
                     receta = receta,
                     verDetalle = {
-                        val indiceOriginal = recetasSemanales.indexOfFirst { it.dia == receta.dia }
-                        abrirReceta(indiceOriginal.coerceAtLeast(0))
+                        abrirReceta(receta.dia)
                     }
                 )
             }

@@ -8,14 +8,14 @@ interface ElementoMinuta {
 
 // Almacena información de la receta.
 data class Receta(
-    val dia: String,
-    override val nombre: String, // Nombre de la receta.
-    val ingredientes: String, // Ingredientes.
-    val preparacion: String, // Pasos de preparación.
-    val calorias: Int, // Número de calorías.
-    val proteinas: Int, // Número de proteínas.
-    val carbohidratos: Int, // Número de carbohidratos.
-    val recomendacion: String // Recomendación para el usuario.
+    val dia: String = "",
+    override val nombre: String = "", // Nombre de la receta.
+    val ingredientes: String = "", // Ingredientes.
+    val preparacion: String = "", // Pasos de preparación.
+    val calorias: Int = 0, // Número de calorías.
+    val proteinas: Int = 0, // Número de proteínas.
+    val carbohidratos: Int = 0, // Número de carbohidratos.
+    val recomendacion: String = "" // Recomendación para el usuario.
 ) : ElementoMinuta {
     // Entrega un resumen simple de los nutrientes de la receta.
     fun resumenNutricional(): String {

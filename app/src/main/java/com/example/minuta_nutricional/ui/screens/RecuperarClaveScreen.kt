@@ -8,7 +8,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.minuta_nutricional.data.usuariosPrueba
+import com.example.minuta_nutricional.data.FirebaseUsuarios
+import com.example.minuta_nutricional.data.mensajeFirebase
+import kotlinx.coroutines.launch
 import com.example.minuta_nutricional.ui.components.MensajeVisual
 import com.example.minuta_nutricional.utils.esCorreoValido
 import com.example.minuta_nutricional.utils.validar
@@ -18,6 +20,8 @@ fun RecuperarClave(modifier: Modifier, volver: () -> Unit) {
     var correo by remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
     var esError by remember { mutableStateOf(false) }
+    var cargando by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     FormularioBase(
         modifier = modifier,
         titulo = "Recuperar",
@@ -56,22 +60,30 @@ fun RecuperarClave(modifier: Modifier, volver: () -> Unit) {
                         mensaje = "El formato del correo electrónico no es válido."
                         esError = true
                     }
-                    !usuariosPrueba.any { usuario ->
-                        usuario.correo.equals(correoLimpio, ignoreCase = true)
-                    } -> {
-                        mensaje = "No existe una cuenta registrada con este correo."
-                        esError = true
-                    }
                     else -> {
-                        mensaje = "Instrucciones enviadas. Revisa tu correo electrónico."
-                        esError = false
+                        cargando = true
+                        scope.launch {
+                            val resultado = FirebaseUsuarios.recuperar(correoLimpio)
+                            cargando = false
+                            resultado.fold(
+                                onSuccess = {
+                                    mensaje = "Si existe una cuenta con este correo, recibirás instrucciones. Revisa también la carpeta de spam."
+                                    esError = false
+                                },
+                                onFailure = {
+                                    mensaje = it.mensajeFirebase()
+                                    esError = true
+                                }
+                            )
+                        }
                     }
                 }
             },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !cargando,
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text("Enviar instrucciones")
+            Text(if (cargando) "Enviando…" else "Enviar instrucciones")
         }
     }
 }

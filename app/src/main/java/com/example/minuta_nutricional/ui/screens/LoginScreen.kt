@@ -17,7 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.minuta_nutricional.data.usuariosPrueba
+import com.example.minuta_nutricional.data.FirebaseUsuarios
+import com.example.minuta_nutricional.data.mensajeFirebase
+import kotlinx.coroutines.launch
 import com.example.minuta_nutricional.ui.components.MensajeVisual
 import com.example.minuta_nutricional.utils.esCorreoValido
 import com.example.minuta_nutricional.utils.validar
@@ -32,6 +34,8 @@ fun Login(
     var correo by remember { mutableStateOf("") }
     var clave by remember { mutableStateOf("") }
     var mensajeError by remember { mutableStateOf("") }
+    var cargando by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     FormularioBase(modifier, "Minuta Nutricional", "Bienvenido") {
         OutlinedTextField(
@@ -79,24 +83,28 @@ fun Login(
                         mensajeError = "Formato de correo inválido"
                     }
                     else -> {
-                        val usuarioEncontrado = usuariosPrueba.find { it.correo == correo && it.clave == clave }
-                        if (usuarioEncontrado != null) {
-                            ingresar(usuarioEncontrado.nombre)
-                        } else {
-                            mensajeError = "Credenciales incorrectas"
+                        cargando = true
+                        scope.launch {
+                            val resultado = FirebaseUsuarios.ingresar(correo, clave)
+                            cargando = false
+                            resultado.fold(
+                                onSuccess = { ingresar(it.nombre) },
+                                onFailure = { mensajeError = it.mensajeFirebase() }
+                            )
                         }
                     }
                 }
             },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !cargando,
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text("Iniciar Sesión")
+            Text(if (cargando) "Iniciando sesión…" else "Iniciar Sesión")
         }
         
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-            TextButton(onClick = registrar) { Text("¿No tienes cuenta? Regístrate") }
-            TextButton(onClick = recuperar) { Text("Olvidé mi contraseña") }
+            TextButton(onClick = registrar, enabled = !cargando) { Text("¿No tienes cuenta? Regístrate") }
+            TextButton(onClick = recuperar, enabled = !cargando) { Text("Olvidé mi contraseña") }
         }
     }
 }
