@@ -1,5 +1,6 @@
 package com.example.minuta_nutricional.data
 
+import com.example.minuta_nutricional.data.local.SessionManager
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
@@ -62,6 +63,7 @@ object FirebaseUsuarios {
                 }
                 throw IllegalStateException("No se guardó el perfil. Revisa la conexión y las reglas de Firebase e intenta registrarte nuevamente.", error)
             }
+            SessionManager(androidContext()).guardarSesion(usuario.uid, perfilConfirmado.correo)
             perfilConfirmado
         }
 
@@ -69,13 +71,23 @@ object FirebaseUsuarios {
         val referenciaPerfiles = perfiles()
         val usuario = checkNotNull(auth.signInWithEmailAndPassword(correo.trim(), clave).await().user)
         try {
-            checkNotNull(referenciaPerfiles.child(usuario.uid).get().await().getValue(PerfilUsuario::class.java)) {
+            val perfil = checkNotNull(referenciaPerfiles.child(usuario.uid).get().await().getValue(PerfilUsuario::class.java)) {
                 "No se encontró el perfil de esta cuenta."
             }
+            SessionManager(androidContext()).guardarSesion(usuario.uid, checkNotNull(usuario.email))
+            perfil
         } catch (error: Exception) {
             auth.signOut()
+            SessionManager(androidContext()).limpiarSesion()
             throw error
         }
+    }
+
+    /** Solo prellena el correo cuando la cuenta local coincide con Firebase Auth. */
+    fun correoSesionRecordada(): String {
+        if (FirebaseApp.getApps(androidContext()).isEmpty()) return ""
+        val uidFirebase = FirebaseAuth.getInstance().currentUser?.uid
+        return SessionManager(androidContext()).obtenerSesionSiCoincide(uidFirebase)?.correo.orEmpty()
     }
 
     suspend fun recuperar(correo: String): Result<Unit> = ejecutar {
@@ -124,12 +136,14 @@ object FirebaseUsuarios {
                 throw error
             }
             auth.signOut()
+            SessionManager(androidContext()).limpiarSesion()
         }
         Unit
     }
 
     fun cerrarSesion() {
         if (FirebaseApp.getApps(androidContext()).isNotEmpty()) FirebaseAuth.getInstance().signOut()
+        SessionManager(androidContext()).limpiarSesion()
     }
 
     private suspend fun <T> ejecutar(operacion: suspend () -> T): Result<T> = try {

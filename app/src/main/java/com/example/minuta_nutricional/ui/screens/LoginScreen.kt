@@ -31,7 +31,7 @@ fun Login(
     registrar: () -> Unit,
     recuperar: () -> Unit
 ) {
-    var correo by remember { mutableStateOf("") }
+    var correo by remember { mutableStateOf(FirebaseUsuarios.correoSesionRecordada()) }
     var clave by remember { mutableStateOf("") }
     var mensajeError by remember { mutableStateOf("") }
     var cargando by remember { mutableStateOf(false) }

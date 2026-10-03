@@ -5,6 +5,7 @@ Aplicación móvil desarrollada con Kotlin, Android Studio, Jetpack Compose y Ma
 ## Funcionalidades
 
 - Login con Firebase Auth y lectura del perfil desde Realtime Database.
+- `SharedPreferences` conserva UID y correo como datos básicos de sesión tras un acceso válido; el correo se recupera al volver a la pantalla de login solo si el UID coincide con Firebase Auth. No se realiza acceso automático.
 - Registro con contraseña mínima, control de correo duplicado mediante Firebase Auth y guardado del perfil nutricional.
 - Recuperación de contraseña mediante correo enviado por Firebase Auth.
 - Menú principal con acceso directo a la planificación semanal.
@@ -53,7 +54,11 @@ Aplicación móvil desarrollada con Kotlin, Android Studio, Jetpack Compose y Ma
 
 ## Preferencias locales
 
-`data/local/PreferenciasMinuta.kt` utiliza `SharedPreferences` en modo privado para guardar solo el último día seleccionado, incluido “Día libre”. La selección se comprueba contra el catálogo cargado antes de mostrarla. No se guardan contraseñas, tokens, UID ni correo en esta preferencia: Firebase Auth sigue administrando la autenticación y Realtime Database los perfiles y las recetas. Al cerrar sesión la preferencia de día permanece en el dispositivo, pues no contiene datos de la cuenta.
+`data/local/SessionManager.kt` utiliza `SharedPreferences` en modo privado para guardar UID y correo únicamente después de que Firebase Auth autentica y se confirma el perfil en Realtime Database. Al abrir Login, solo se usa el correo guardado si el UID coincide con el usuario actual de Firebase; el dato local nunca concede acceso. Al cerrar sesión, eliminar la cuenta o fallar la lectura del perfil durante el ingreso, se limpia esta copia local. No se guardan contraseñas ni tokens y la app continúa solicitando login al iniciarse.
+
+`data/local/PreferenciasMinuta.kt` utiliza otro archivo de `SharedPreferences` en modo privado para guardar solo el último día seleccionado, incluido “Día libre”. La selección se comprueba contra el catálogo cargado antes de mostrarla. Firebase Auth sigue administrando la autenticación y Realtime Database los perfiles y las recetas. Al cerrar sesión la preferencia de día permanece en el dispositivo, pues no contiene datos de la cuenta.
+
+Para verificar la sesión local, inicia sesión y reinicia la app: el correo debe aparecer en Login, pero se sigue solicitando la contraseña. Cierra sesión y comprueba que el campo de correo vuelve a estar vacío. Repite con registro y eliminación de cuenta. `SessionManagerTest` prueba la coincidencia del UID; `SessionManagerInstrumentedTest` comprueba escritura, lectura y limpieza reales en Android y requiere un dispositivo o emulador.
 
 Para comprobarlo, inicia sesión, abre la minuta, selecciona otro día, vuelve al menú y abre de nuevo la minuta. Debe mantenerse la selección. Repite después de cerrar y abrir la app e iniciar sesión. Si una cuenta administradora elimina la receta de ese día, la próxima apertura selecciona el primer día disponible o “Día libre” si el catálogo está vacío. Las pruebas unitarias de `PreferenciasMinutaTest` cubren esta validación; la persistencia real en el dispositivo requiere la prueba manual descrita aquí.
 
@@ -97,7 +102,7 @@ Abrir el proyecto en Android Studio, sincronizar Gradle y ejecutar `app` en el d
 |------|-----------------|
 | `app/src/main/java/com/example/minuta_nutricional/MainActivity.kt` | Navegación y flujo principal de pantallas. |
 | `data/` | Modelos, ContentProvider y acceso a Firebase Auth y Realtime Database. |
-| `data/local/` | Preferencia local del último día seleccionado mediante `SharedPreferences`. |
+| `data/local/` | Datos básicos de sesión y último día seleccionado mediante `SharedPreferences`. |
 | `ui/screens/`, `ui/components/`, `ui/theme/` | Pantallas Compose, mensajes y tema visual. |
 | `utils/` | Validaciones reutilizables de Kotlin. |
 | `firebase/` | Reglas de Realtime Database y catálogo inicial de recetas. |
