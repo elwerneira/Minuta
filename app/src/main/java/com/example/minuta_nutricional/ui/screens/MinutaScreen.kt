@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
@@ -46,6 +47,8 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.minuta_nutricional.data.Receta
+import com.example.minuta_nutricional.data.local.DIA_LIBRE
+import com.example.minuta_nutricional.data.local.PreferenciasMinuta
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -56,7 +59,11 @@ fun MinutaSemanal(
     abrirReceta: (String) -> Unit,
     volver: () -> Unit
 ) {
-    var diaSeleccionado by remember { mutableStateOf(recetas.firstOrNull()?.dia ?: DIA_LIBRE) }
+    val context = LocalContext.current
+    val preferencias = remember(context) { PreferenciasMinuta(context.applicationContext) }
+    var diaSeleccionado by remember(recetas, preferencias) {
+        mutableStateOf(preferencias.obtenerDiaSeleccionado(recetas))
+    }
     var mensajeSeleccion by remember { mutableStateOf("") }
     var mostrarMensajeSeleccion by remember { mutableStateOf(false) }
     var versionMensaje by remember { mutableStateOf(0) }
@@ -107,6 +114,7 @@ fun MinutaSemanal(
                     Button(
                         onClick = {
                             diaSeleccionado = receta.dia
+                            preferencias.guardarDiaSeleccionado(receta.dia)
                             mensajeSeleccion = "${receta.dia} seleccionado."
                             mostrarMensajeSeleccion = true
                             versionMensaje++
@@ -134,6 +142,7 @@ fun MinutaSemanal(
                 Button(
                     onClick = {
                         diaSeleccionado = DIA_LIBRE
+                        preferencias.guardarDiaSeleccionado(DIA_LIBRE)
                         mensajeSeleccion = "Día libre seleccionado."
                         mostrarMensajeSeleccion = true
                         versionMensaje++
@@ -336,5 +345,3 @@ private fun DatoNutricional(etiqueta: String, valor: String, modifier: Modifier 
         )
     }
 }
-
-private const val DIA_LIBRE = "Día libre"

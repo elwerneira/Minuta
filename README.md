@@ -11,6 +11,7 @@ Aplicación móvil desarrollada con Kotlin, Android Studio, Jetpack Compose y Ma
 - Mi perfil: consulta de los datos guardados en Firebase y edición de nombre, alimentación y objetivo. El correo se muestra como solo lectura y el saludo se actualiza al guardar.
 - Eliminar cuenta: confirmación con contraseña actual, eliminación del perfil y de Firebase Auth, y regreso al login. Si falla la eliminación en Auth, se intenta restaurar el perfil. La contraseña no se guarda en el dispositivo.
 - Minuta adaptativa con recetas, día libre y resumen nutricional.
+- El último día seleccionado se conserva localmente con `SharedPreferences` y se recupera al volver a abrir la minuta. Si esa receta ya no existe, se selecciona la primera disponible o el día libre.
 - Consulta del catálogo Firebase al abrir la minuta y el detalle, con carga, reintento y validación. La navegación identifica la receta por día, no por posición en el arreglo local.
 - Gestión del catálogo compartido: cuentas administradoras pueden crear una receta por día, editar su contenido y eliminarla con confirmación. Los demás usuarios conservan lectura autenticada.
 - Pantalla independiente de receta con ingredientes, preparación y nutrientes.
@@ -50,6 +51,12 @@ Aplicación móvil desarrollada con Kotlin, Android Studio, Jetpack Compose y Ma
 | Gestión de recetas | La cuenta administradora accedió al gestor y se confirmó creación, edición y eliminación de la receta temporal del sábado. |
 | Cuenta sin rol administrador | Se confirmó la consulta de recetas sin acceso a Gestionar recetas. |
 
+## Preferencias locales
+
+`data/local/PreferenciasMinuta.kt` utiliza `SharedPreferences` en modo privado para guardar solo el último día seleccionado, incluido “Día libre”. La selección se comprueba contra el catálogo cargado antes de mostrarla. No se guardan contraseñas, tokens, UID ni correo en esta preferencia: Firebase Auth sigue administrando la autenticación y Realtime Database los perfiles y las recetas. Al cerrar sesión la preferencia de día permanece en el dispositivo, pues no contiene datos de la cuenta.
+
+Para comprobarlo, inicia sesión, abre la minuta, selecciona otro día, vuelve al menú y abre de nuevo la minuta. Debe mantenerse la selección. Repite después de cerrar y abrir la app e iniciar sesión. Si una cuenta administradora elimina la receta de ese día, la próxima apertura selecciona el primer día disponible o “Día libre” si el catálogo está vacío. Las pruebas unitarias de `PreferenciasMinutaTest` cubren esta validación; la persistencia real en el dispositivo requiere la prueba manual descrita aquí.
+
 ## Carga inicial de recetas en Firebase
 
 1. Abrir Realtime Database, pestaña Datos, en el proyecto `minutanutricional`.
@@ -75,5 +82,28 @@ Los identificadores son `lunes`, `martes`, `miercoles`, `jueves`, `viernes`, `sa
 
 ## Ejecución
 
-1. Abrir el proyecto en Android Studio.
-2. Ejecutar la aplicación en un emulador o dispositivo Android.
+### Requisitos y configuración
+
+- Android Studio compatible con Android Gradle Plugin 9.3.1 y su JDK integrado, SDK de Android 37 y un emulador o dispositivo con Android 7.0 (API 24) o superior.
+- Conexión a internet para autenticación y consulta de datos en Firebase.
+- Proyecto Firebase con una app Android registrada como `com.example.minuta_nutricional`, Authentication con correo y contraseña habilitado y Realtime Database creada. Colocar su `google-services.json` actualizado en `app/`, sincronizar Gradle y publicar `firebase/database.rules.json`. El archivo debe corresponder al proyecto y la base que se van a probar.
+- Seguir las secciones anteriores para importar las recetas iniciales y habilitar una cuenta administradora solo si se probará la gestión del catálogo.
+
+Abrir el proyecto en Android Studio, sincronizar Gradle y ejecutar `app` en el dispositivo. Sin una configuración válida de Firebase pueden compilarse pantallas locales, pero el registro, login, perfil y catálogo remoto no funcionarán. La app inicia en Login; el día recordado se aplica después de ingresar y abrir la minuta, no inicia sesión automáticamente.
+
+### Estructura principal
+
+| Ruta | Responsabilidad |
+|------|-----------------|
+| `app/src/main/java/com/example/minuta_nutricional/MainActivity.kt` | Navegación y flujo principal de pantallas. |
+| `data/` | Modelos, ContentProvider y acceso a Firebase Auth y Realtime Database. |
+| `data/local/` | Preferencia local del último día seleccionado mediante `SharedPreferences`. |
+| `ui/screens/`, `ui/components/`, `ui/theme/` | Pantallas Compose, mensajes y tema visual. |
+| `utils/` | Validaciones reutilizables de Kotlin. |
+| `firebase/` | Reglas de Realtime Database y catálogo inicial de recetas. |
+
+### Pruebas y entrega
+
+Ejecutar `./gradlew testDebugUnitTest` (o `.\gradlew.bat testDebugUnitTest` en Windows) para las pruebas unitarias. Con un emulador o dispositivo conectado, ejecutar `./gradlew connectedDebugAndroidTest` para las pruebas instrumentadas. Además, validar manualmente los flujos con Firebase real y la persistencia del día descrita arriba; las pruebas unitarias no verifican la escritura física en el dispositivo.
+
+Tras cualquier cambio de código, generar y probar un APK nuevo. Un APK producido antes de incorporar `SharedPreferences` no contiene esta funcionalidad. La carpeta `app/release/` es un artefacto de distribución local y no forma parte del código fuente documentado aquí.
